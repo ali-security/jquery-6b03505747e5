@@ -10,7 +10,6 @@ var
 	rnoContent = /^(?:GET|HEAD)$/,
 	rprotocol = /^\/\//,
 	rquery = /\?/,
-	rscript = /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi,
 	rts = /([?&])_=[^&]*/,
 	rurl = /^([\w\+\.\-]+:)(?:\/\/([^\/?#:]*)(?::(\d+)|)|)/,
 
@@ -195,17 +194,11 @@ jQuery.fn.load = function( url, params, callback ) {
 		// See if a selector was specified
 		self.html( selector ?
 
-			// Create a dummy div to hold the results
-			jQuery("<div>")
+			// If a selector was specified, locate the right elements in a dummy div
+			// Exclude scripts to avoid IE 'Permission Denied' errors
+			jQuery("<div>").append( jQuery.parseHTML( responseText ) ).find( selector ) :
 
-				// inject the contents of the document in, removing the scripts
-				// to avoid any 'Permission Denied' errors in IE
-				.append( responseText.replace( rscript, "" ) )
-
-				// Locate the specified elements
-				.find( selector ) :
-
-			// If not, just inject the full result
+			// Otherwise use the full result
 			responseText );
 
 	});

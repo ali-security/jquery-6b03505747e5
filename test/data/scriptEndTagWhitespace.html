@@ -1,0 +1,14 @@
+<div class="user">This is a user</div>
+<script>
+ok( false, "script with whitespace before '>' in its end tag must not be executed" );
+</script >
+<div class="user">This is a user
+<script type="text/javascript">
+ok( false, "nested script with a newline in its end tag must not be executed" );
+</script
+>
+</div>
+<SCRIPT>
+ok( false, "uppercase script with an attribute in its end tag must not be executed" );
+</SCRIPT foo="bar">
+<div class="teacher">This is a teacher</div>

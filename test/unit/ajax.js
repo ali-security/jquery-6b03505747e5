@@ -1097,6 +1097,17 @@ test("load('url selector')", function() {
 	});
 });
 
+test("load('url selector') - scripts with whitespace in their end tag are not executed", function() {
+	expect(2);
+	stop();
+	// Each script in the response calls ok( false ) if it gets evaluated
+	jQuery("#first").load("data/scriptEndTagWhitespace.html div.user", function(){
+		equal( jQuery(this).children("div").length, 2, "Verify that specific elements were injected" );
+		equal( jQuery(this).find("script").length, 0, "Verify that no script elements were injected" );
+		start();
+	});
+});
+
 test("load(String, Function) with ajaxSetup on dataType json, see #2046", function() {
 	expect(1);
 	stop();
