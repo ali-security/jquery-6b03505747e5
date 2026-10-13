@@ -101,6 +101,12 @@ test("jQuery()", function() {
 
 	equal( jQuery(document.body).get(0), jQuery("body").get(0), "Test passing an html node to the factory" );
 
+	elem = jQuery("  <em>hello</em>")[0];
+	equal( elem.nodeName.toLowerCase(), "em", "leading space" );
+
+	elem = jQuery("\n\n<em>world</em>")[0];
+	equal( elem.nodeName.toLowerCase(), "em", "leading newlines" );
+
 	elem = jQuery("<div/>", attrObj );
 
 	if ( jQuery.fn.width ) {
@@ -140,14 +146,12 @@ test("jQuery()", function() {
 	elem.remove();
 
 	equal( jQuery(" <div/> ").length, 1, "Make sure whitespace is trimmed." );
-	equal( jQuery(" a<div/>b ").length, 1, "Make sure whitespace and other characters are trimmed." );
 
 	for ( i = 0; i < 128; i++ ) {
 		lng += "12345678";
 	}
 
 	equal( jQuery(" <div>" + lng + "</div> ").length, 1, "Make sure whitespace is trimmed on long strings." );
-	equal( jQuery(" a<div>" + lng + "</div>b ").length, 1, "Make sure whitespace and other characters are trimmed on long strings." );
 });
 
 test("selector state", function() {
@@ -570,6 +574,24 @@ test("XSS via location.hash", function() {
 		jQuery( '#<img id="check9521" src="no-such-.gif" onerror="jQuery._check9521(false)">' ).appendTo("#qunit-fixture");
 	} catch (err) {
 		jQuery["_check9521"](true);
+	}
+});
+
+test("XSS via text preceding html (#11290)", function() {
+	expect(1);
+
+	stop();
+	jQuery["_check11290"] = function(x){
+		ok( x, "script called from selector with text before an inline handler" );
+		jQuery("#check11290").remove();
+		delete jQuery["_check11290"];
+		start();
+	};
+	try {
+		// This throws an error because it's processed as a selector, not as html
+		jQuery( 'x<img id="check11290" src="no-such-.gif" onerror="jQuery._check11290(false)">' ).appendTo("#qunit-fixture");
+	} catch (err) {
+		jQuery["_check11290"](true);
 	}
 });
 
@@ -1119,7 +1141,7 @@ test("jQuery.proxy", function(){
 });
 
 test("jQuery.parseHTML", function() {
-	expect( 11 );
+	expect( 12 );
 
 	equal( jQuery.parseHTML(), null, "Nothing in, null out." );
 	equal( jQuery.parseHTML( null ), null, "Nothing in, null out." );
@@ -1145,6 +1167,8 @@ test("jQuery.parseHTML", function() {
 	}, "Passing a script is allowed if allowScripts is true");
 
 	equal( jQuery.parseHTML("text")[0].nodeType, 3, "Parsing text returns a text node" );
+
+	equal( jQuery.parseHTML(" <div/> ")[0].nodeType, 3, "Leading spaces are treated as text nodes (#11290)" );
 });
 
 test("jQuery.parseJSON", function(){

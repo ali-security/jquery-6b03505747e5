@@ -75,6 +75,20 @@ test("disconnected nodes", function() {
 	equal( $div.is("div"), true, "Make sure .is('nodeName') works on disconnect nodes." );
 });
 
+test("jQuery only - broken", 2, function() {
+	raises(function() {
+		// Setting context to null here somehow avoids QUnit's window.error handling
+		// making the e & e.message correct
+		// For whatever reason, without this,
+		// Sizzle.error will be called but no error will be seen in oldIE
+		jQuery.call( null, " a<div/>b " );
+	}, function( e ) {
+		return (/syntax.err/i).test( e.message );
+	}, "leading text invalid: $(' a<div/>b ') (#11290)" );
+
+	equal( jQuery("element[attribute='<div></div>']").length, 0, "Html within a selector is not recognized as html (#11290)" );
+});
+
 testIframe("selector/html5_selector", "attributes - jQuery.attr", function( jQuery, window, document ) {
 	expect( 35 );
 
